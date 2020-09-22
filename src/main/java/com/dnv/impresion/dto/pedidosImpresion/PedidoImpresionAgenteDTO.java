@@ -14,10 +14,11 @@ public class PedidoImpresionAgenteDTO {
 	private boolean color;
 	private String tamanioPapel;
 	private String disenio;
+	private String feedbackPedido;
 	
 	public PedidoImpresionAgenteDTO(Long idPedidoImpresion, Date fechaPedidoImpresion, String nombreArchivo,
 			String estadoPedidoImpresion, int cantidadCopias, int cantidadHojas,
-			String tamanioPapel, boolean dobleFaz, boolean color, String disenio) {
+			String tamanioPapel, boolean dobleFaz, boolean color, String disenio, String feedbackPedido) {
 		
 		this.idPedidoImpresion = idPedidoImpresion;
 		this.fechaPedidoImpresion = fechaPedidoImpresion;
@@ -29,6 +30,7 @@ public class PedidoImpresionAgenteDTO {
 		this.color = color;
 		this.tamanioPapel = tamanioPapel;
 		this.disenio = disenio;
+		this.feedbackPedido = feedbackPedido;
 	}
 
 	public Long getIdPedidoImpresion() {
@@ -95,6 +97,16 @@ public class PedidoImpresionAgenteDTO {
 	public void setDisenio(String disenio) {
 		this.disenio = disenio;
 	}
+
+	public String getFeedbackPedido() {
+		return feedbackPedido;
+	}
+
+	public void setFeedbackPedido(String feedbackPedido) {
+		this.feedbackPedido = feedbackPedido;
+	}
+	
+	
 	
 	
 

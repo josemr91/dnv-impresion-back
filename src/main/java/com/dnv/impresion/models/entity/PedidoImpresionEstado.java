@@ -44,7 +44,8 @@ public class PedidoImpresionEstado implements Serializable{
 		CANCELADO,
 		RECHAZADO,
 		PARA_RETIRAR,
-		RETIRADO
+		RETIRADO,
+		FINALIZADO
 	}
 	
 	public PedidoImpresionEstado() {

@@ -7,6 +7,8 @@ import java.util.List;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -57,6 +59,14 @@ public class PedidoImpresion implements Serializable{
 	@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 	@JoinColumn(name="pedido_impresion_id")
 	private List<PedidoImpresionEstado> pedidoImpresionEstadoList;
+	
+	@Enumerated(value = EnumType.STRING)
+	private FeedbackPedido feedbackPedido;
+	
+	public enum FeedbackPedido{
+		POSITIVO,
+		NEGATIVO
+	}
 		
 	public PedidoImpresion(){
 		this.fecha = new Date();
@@ -171,6 +181,15 @@ public class PedidoImpresion implements Serializable{
 		this.pedidoImpresionEstadoList.add(pedidoImpresionEstado);
 	}
 
+	public FeedbackPedido getFeedbackPedido() {
+		return feedbackPedido;
+	}
+
+	public void setFeedbackPedido(FeedbackPedido feedbackPedido) {
+		this.feedbackPedido = feedbackPedido;
+	}
+
+	
 
 
 	

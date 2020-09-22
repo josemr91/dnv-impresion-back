@@ -109,6 +109,26 @@ public class AgenteDashboardController {
 		
 	}
 
+	@PostMapping("setFeedbackPedido")
+	public ResponseEntity<?> setFeedbackpedido(@RequestParam("idPedidoImpresion") Long idPedidoImpresion,
+												@RequestParam("feedbackPedido") String feedbackPedido){
+		
+		Map<String, Object> response = new HashMap<>();
+		
+		try {
+			agenteDashboardService.setFeedbackPedido(idPedidoImpresion, feedbackPedido);
+		} catch (DataAccessException e) {
+			response.put("mensaje", "Error al calificar pedido.");
+			response.put("error", e.getMessage().concat(": ").concat(e.getCause().getMessage()));
+			return new ResponseEntity<Map<String, Object>>(response, HttpStatus.INTERNAL_SERVER_ERROR);	
+		}
+		
+		response.put("mensaje", "Se ha calificado el pedido correctamente.");
+		
+		return new ResponseEntity<Map<String, Object>>(response, HttpStatus.OK);
+	}
+	
+	
 	/*
 	// Prueba
 	@GetMapping("/downloadFile/{fileName:.+}")

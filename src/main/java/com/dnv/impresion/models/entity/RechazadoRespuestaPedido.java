@@ -2,7 +2,7 @@ package com.dnv.impresion.models.entity;
 
 import javax.persistence.Entity;
 
-@Entity
+
 public class RechazadoRespuestaPedido extends RespuestaPedido{
 	
 	private static final long serialVersionUID = 1L;

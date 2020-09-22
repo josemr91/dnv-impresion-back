@@ -85,9 +85,17 @@ public class AgenteDashboardServiceImpl implements AgenteDashboardService{
 				
 			}
 			
+			String feedbackPedido;
+			
+			if(o.getFeedbackPedido() == null) {
+				feedbackPedido = "";
+			}else {
+				feedbackPedido = o.getFeedbackPedido().toString();
+			}
+			
 			PedidoImpresionAgenteDTO pedidoImpresionDTO = new PedidoImpresionAgenteDTO(o.getId(), o.getFecha(),
 					o.getNombreArchivoImpresion(), pedidoImpresionEstado.getEstadoPedidoImpresion().toString(), o.getCantidadCopias(),
-					o.getCantidadHojas(), o.getTamanioPapel(), o.isDobleFax(), o.isColor(), o.getDisenio());
+					o.getCantidadHojas(), o.getTamanioPapel(), o.isDobleFax(), o.isColor(), o.getDisenio(), feedbackPedido);
 
 			pedidoImpresionDTOList.add(pedidoImpresionDTO);
 		}
@@ -101,18 +109,8 @@ public class AgenteDashboardServiceImpl implements AgenteDashboardService{
 		Optional<PedidoImpresion> pedidoImpresion = pedidoImpresionDao.findById(idPedidoImpresion);
 
 		if (pedidoImpresion.isPresent()) {
-
-			List <PedidoImpresionEstado> pedidoImpresionEstadoList = pedidoImpresion.get().getPedidoImpresionEstadoList();
-			PedidoImpresionEstado pedidoImpresionEstado = null;
 			
-			for(PedidoImpresionEstado o : pedidoImpresionEstadoList) {
-				if(o.getFechaFin() == null) {
-					pedidoImpresionEstado = o;
-					break;
-				}
-				
-			}
-					
+			PedidoImpresionEstado pedidoImpresionEstado = this.obtenerPedidoImpresionEstado(pedidoImpresion.get());
 			
 			if(pedidoImpresionEstado.getEstadoPedidoImpresion().equals(com.dnv.impresion.models.entity.PedidoImpresionEstado.EstadoPedidoImpresion.SIN_ASIGNAR)){
 								
@@ -138,6 +136,39 @@ public class AgenteDashboardServiceImpl implements AgenteDashboardService{
 
 	}
 
+	public void setFeedbackPedido(Long idPedidoImpresion, String feedBack) {
+		
+		Optional<PedidoImpresion> pedidoImpresion = pedidoImpresionDao.findById(idPedidoImpresion);
+		
+		if(pedidoImpresion.isPresent()) {
+			
+			if(feedBack.equals("Positivo")){
+				pedidoImpresion.get().setFeedbackPedido(PedidoImpresion.FeedbackPedido.POSITIVO);
+			} else {
+				pedidoImpresion.get().setFeedbackPedido(PedidoImpresion.FeedbackPedido.NEGATIVO);
+			}
+			
+			PedidoImpresionEstado pedidoImpresionEstado = this.obtenerPedidoImpresionEstado(pedidoImpresion.get());
+			
+			pedidoImpresionEstado.setFechaFin(new Date());
+			PedidoImpresionEstado pedidoImpresionEstadoNuevo = new PedidoImpresionEstado();
+			pedidoImpresionEstadoNuevo.setEstadoPedidoImpresion(PedidoImpresionEstado.EstadoPedidoImpresion.FINALIZADO);
+			pedidoImpresion.get().addPedidoImpresionEstado(pedidoImpresionEstadoNuevo);
+			
+			//Save
+			pedidoImpresionEstadoDao.save(pedidoImpresionEstadoNuevo);
+			pedidoImpresionEstadoDao.save(pedidoImpresionEstado);
+			pedidoImpresionDao.save(pedidoImpresion.get());
+						
+		} else {
+			throw new NullPointerException("No se encuentra el pedido seleccionado");
+		}
+		
+		
+	}
+
+	// Private
+		
 	private int calcularCantidadHojas(MultipartFile file, boolean dobleFax, int cantidadCopias) throws IOException {
 
 		PDDocument doc = PDDocument.load(file.getInputStream());
@@ -156,4 +187,21 @@ public class AgenteDashboardServiceImpl implements AgenteDashboardService{
 
 	}
 
+	private PedidoImpresionEstado obtenerPedidoImpresionEstado(PedidoImpresion pedidoImpresion) {
+		
+		List <PedidoImpresionEstado> pedidoImpresionEstadoList = pedidoImpresion.getPedidoImpresionEstadoList();
+		PedidoImpresionEstado pedidoImpresionEstado = null;
+		
+		for(PedidoImpresionEstado o : pedidoImpresionEstadoList) {
+			if(o.getFechaFin() == null) {
+				pedidoImpresionEstado = o;
+				break;
+			}
+			
+		}
+		
+		return pedidoImpresionEstado;
+	}
+	
+	
 }

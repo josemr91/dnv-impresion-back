@@ -16,5 +16,7 @@ public interface AgenteDashboardService {
 	
 	public void cancelarPedidoImpresion(Long idPedidoImpresion) throws Exception;
 	
+	public void setFeedbackPedido(Long idPedidoImpresion, String feedBack);
+	
 	
 }

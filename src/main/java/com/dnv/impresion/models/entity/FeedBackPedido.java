@@ -8,7 +8,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 
 
-public class MotivoRechazoPedido implements Serializable{
+public class FeedBackPedido implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 	
@@ -16,23 +16,6 @@ public class MotivoRechazoPedido implements Serializable{
 	@GeneratedValue( strategy = GenerationType.IDENTITY)
 	private Long id;
 	
-	private String motivo;
-
-	public Long getId() {
-		return id;
-	}
-
-	public void setId(Long id) {
-		this.id = id;
-	}
-
-	public String getMotivo() {
-		return motivo;
-	}
-
-	public void setMotivo(String motivo) {
-		this.motivo = motivo;
-	}
 	
-	
+
 }

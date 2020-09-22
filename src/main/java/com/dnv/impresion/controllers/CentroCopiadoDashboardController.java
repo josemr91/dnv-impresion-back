@@ -86,6 +86,24 @@ public class CentroCopiadoDashboardController {
 	}
 	
 	//Rechazar Pedido
+	@PostMapping("rechazarPedido")
+	public ResponseEntity<?> rechazarPedido(@RequestParam("username") String username,
+											@RequestParam("idPedido") Long idPedidoImpresion){
+		
+		Map<String, Object> response = new HashMap<>();
+		
+		try {
+			centroCopiadoDashboardService.rechazarPedidoImpresion(username, idPedidoImpresion);
+		} catch(DataAccessException e) {
+			response.put("mensaje", "Error al rechazar el Pedido de impresion.");
+			response.put("error", e.getMessage().concat(": ").concat(e.getCause().getMessage()));
+			return new ResponseEntity<Map<String, Object>>(response, HttpStatus.INTERNAL_SERVER_ERROR);	
+		}
+		
+		response.put("mensaje", "El Pedido fue rechazado.");
+		
+		return new ResponseEntity<Map<String, Object>>(response, HttpStatus.ACCEPTED);
+	}	
 	
 	//Entregar Pedido
 	@PostMapping("entregarPedidoImpresion")
