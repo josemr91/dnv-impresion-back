@@ -3,6 +3,8 @@ package com.dnv.impresion.services;
 import java.io.IOException;
 import java.util.List;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.dnv.impresion.dto.pedidosImpresion.PedidoImpresionAgenteDTO;
@@ -18,5 +20,8 @@ public interface AgenteDashboardService {
 	
 	public void setFeedbackPedido(Long idPedidoImpresion, String feedBack);
 	
+	//Prueba
+	
+	public Page<PedidoImpresionAgenteDTO> pruebaObtenerPagePedidosImpresionByAgente(String username, Pageable pageable);
 	
 }

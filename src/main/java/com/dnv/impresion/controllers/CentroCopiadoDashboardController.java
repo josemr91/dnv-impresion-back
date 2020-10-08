@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -19,7 +20,6 @@ import org.springframework.web.bind.annotation.RestController;
 import com.dnv.impresion.dto.pedidosImpresion.PedidoImpresionCentroDTO;
 import com.dnv.impresion.services.CentroCopiadoDashboardService;
 
-@CrossOrigin(origins= {"http://localhost:4200"})
 @RestController
 @RequestMapping("/api/centroCopiadoDashboard")
 public class CentroCopiadoDashboardController {
@@ -27,6 +27,7 @@ public class CentroCopiadoDashboardController {
 	@Autowired
 	CentroCopiadoDashboardService centroCopiadoDashboardService;
 		
+	@Secured({"ROLE_ADMIN","ROLE_CCYD"})
 	@GetMapping("obtenerPedidosImpresion/{tipoEstado}")
 	public ResponseEntity<?> obtenerPedidosImpresion(@PathVariable String tipoEstado){
 		
@@ -45,6 +46,7 @@ public class CentroCopiadoDashboardController {
 		
 	}
 	
+	@Secured({"ROLE_ADMIN","ROLE_CCYD"})
 	@PostMapping("asignarPedidoImpresion")
 	public ResponseEntity<?> asignarPedidoImpresion(@RequestParam("username") String username,
 			@RequestParam("idPedidoImpresion") Long idPedidoImpresion) throws Exception{
@@ -64,7 +66,7 @@ public class CentroCopiadoDashboardController {
 		return new ResponseEntity<Map<String, Object>>(response, HttpStatus.CREATED);
 	}
 	
-	//Confirmar Pedido
+	@Secured({"ROLE_ADMIN","ROLE_CCYD"})
 	@PostMapping("confirmarImpresionPedido")
 	public ResponseEntity<?> confirmarImpresionPedido(@RequestParam("username") String username,
 														@RequestParam("idPedido") Long idPedido){
@@ -85,7 +87,7 @@ public class CentroCopiadoDashboardController {
 		
 	}
 	
-	//Rechazar Pedido
+	@Secured({"ROLE_ADMIN","ROLE_CCYD"})
 	@PostMapping("rechazarPedido")
 	public ResponseEntity<?> rechazarPedido(@RequestParam("username") String username,
 											@RequestParam("idPedido") Long idPedidoImpresion){
@@ -105,7 +107,7 @@ public class CentroCopiadoDashboardController {
 		return new ResponseEntity<Map<String, Object>>(response, HttpStatus.ACCEPTED);
 	}	
 	
-	//Entregar Pedido
+	@Secured({"ROLE_ADMIN","ROLE_CCYD"})
 	@PostMapping("entregarPedidoImpresion")
 	public ResponseEntity<?> entregarPedidoImpresion(@RequestParam("username") String username,
 														@RequestParam("idPedido") Long idPedido){

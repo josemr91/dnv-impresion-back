@@ -46,6 +46,7 @@ public class Usuario implements Serializable {
 	private String apellido;
 	
 	@NotNull
+	@Column(unique = true)
 	private String cuit;
 	
 	private String prioridad;

@@ -79,7 +79,7 @@ public class CentroCopiadoDashboardServiceImpl implements CentroCopiadoDashboard
 		}
 		
 		for(PedidoImpresion o : pedidoImpresionAMostrarList) {
-			
+						
 			String fullNameAgente = o.getUsuario().getApellido() + ", " + o.getUsuario().getNombre();
 			
 			PedidoImpresionEstado pedidoImpresionEstado = null;
@@ -118,17 +118,19 @@ public class CentroCopiadoDashboardServiceImpl implements CentroCopiadoDashboard
 	// Mejorar Excepciones
 	public void asignarPedidoImpresion(String username, Long idPedidoImpresion) throws Exception {
 		
+		System.out.println(username);
+		
 		Usuario usuarioEncargado = usuarioDao.findByUsername(username);
 
 		Optional<PedidoImpresion> pedidoImpresion = pedidoImpresionDao.findById(idPedidoImpresion);
-
+		
 		if (pedidoImpresion.isPresent()) {
 
-			boolean esAdmin = false;
+			boolean esCentro = false;
 
 			for (Role o : usuarioEncargado.getRoleList()) {
-				if (o.getNombre().equals("ROLE_ADMIN")) {
-					esAdmin = true;
+				if (o.getNombre().equals("ROLE_CCYD")) {
+					esCentro = true;
 					
 					PedidoImpresionEstado pedidoImpresionEstadoNuevo = new PedidoImpresionEstado();
 					pedidoImpresionEstadoNuevo.setUsuario(usuarioEncargado);
@@ -155,7 +157,7 @@ public class CentroCopiadoDashboardServiceImpl implements CentroCopiadoDashboard
 				}
 			}
 		
-			if(!esAdmin) {
+			if(!esCentro) {
 				throw new Exception("El usuario no tiene permisos para asignar pedidos de impresion.");
 			}	
 

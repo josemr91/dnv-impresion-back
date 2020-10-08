@@ -15,7 +15,6 @@ import org.springframework.web.bind.annotation.RestController;
 import com.dnv.impresion.entity.dao.PedidoImpresionDao;
 import com.dnv.impresion.services.FileStorageService;
 
-@CrossOrigin(origins= {"http://localhost:4200"})
 @RestController
 @RequestMapping("/api/prueba")
 public class PruebaController {

@@ -14,10 +14,13 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.dao.DataAccessException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -32,7 +35,6 @@ import com.dnv.impresion.dto.pedidosImpresion.PedidoImpresionAgenteDTO;
 import com.dnv.impresion.services.AgenteDashboardService;
 import com.dnv.impresion.services.FileStorageServiceImpl;
 
-@CrossOrigin(origins= {"http://localhost:4200"})
 @RestController
 @RequestMapping("/api/agenteDashboard")
 public class AgenteDashboardController {
@@ -45,6 +47,7 @@ public class AgenteDashboardController {
 	
 	private static final Logger logger = LoggerFactory.getLogger(AgenteDashboardController.class);
 	
+	@Secured({"ROLE_ADMIN","ROLE_CCYD","ROLE_AGENTE"})
 	@PostMapping("solicitarImpresion")
 	public ResponseEntity<?> solicitarImpresion(@RequestParam("file") MultipartFile file,
 														  @RequestParam("username") String username,
@@ -75,6 +78,8 @@ public class AgenteDashboardController {
 		return new ResponseEntity<Map<String, Object>>(response, HttpStatus.CREATED);
 	}
 	
+
+	@Secured({"ROLE_ADMIN","ROLE_CCYD","ROLE_AGENTE"})
 	@PatchMapping("cancelarPedidoImpresion")
 	public ResponseEntity<?> cancelarPedidoImpresion(@RequestParam("idPedidoImpresion") Long idPedidoImpresion) throws Exception {
 		
@@ -92,12 +97,18 @@ public class AgenteDashboardController {
 		return new ResponseEntity<Map<String, Object>>(response, HttpStatus.OK);
 	}
 	
-	@GetMapping("listaPedidosAgente/{username}")
-	public ResponseEntity<?> pedidosImpresionPorAgente(@PathVariable String username){
+
+	@Secured({"ROLE_ADMIN","ROLE_CCYD","ROLE_AGENTE"})
+	@GetMapping("listaPedidosAgente/{username}/{page}")
+	public ResponseEntity<?> pedidosImpresionPorAgente(@PathVariable String username, @PathVariable Integer page){
 		
 		Map<String, Object> response = new HashMap<>();
 		List<PedidoImpresionAgenteDTO> pedidoImpresionDtoList = new ArrayList<>();
+		Page<PedidoImpresionAgenteDTO> pageDto = null;
 		try {
+			
+			pageDto = agenteDashboardService.pruebaObtenerPagePedidosImpresionByAgente(username, PageRequest.of(page, 2));
+			
 			pedidoImpresionDtoList = agenteDashboardService.obtenerPedidosImpresionByAgente(username);
 		}catch (DataAccessException e) {
 			response.put("mensaje", "Error al obtener los pedidos de impresion.");
@@ -105,10 +116,12 @@ public class AgenteDashboardController {
 			return new ResponseEntity<Map<String, Object>>(response, HttpStatus.INTERNAL_SERVER_ERROR);	
 		}
 		
-		return new ResponseEntity<List<PedidoImpresionAgenteDTO>>(pedidoImpresionDtoList, HttpStatus.CREATED);
-		
+		//return new ResponseEntity<List<PedidoImpresionAgenteDTO>>(pedidoImpresionDtoList, HttpStatus.CREATED);
+		return new ResponseEntity<Page<PedidoImpresionAgenteDTO>>(pageDto, HttpStatus.CREATED);
 	}
 
+
+	@Secured({"ROLE_ADMIN","ROLE_CCYD","ROLE_AGENTE"})
 	@PostMapping("setFeedbackPedido")
 	public ResponseEntity<?> setFeedbackpedido(@RequestParam("idPedidoImpresion") Long idPedidoImpresion,
 												@RequestParam("feedbackPedido") String feedbackPedido){
