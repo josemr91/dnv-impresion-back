@@ -29,34 +29,26 @@ public class FileStorageServiceImpl implements FileStorageService{
 	
 	private final static String DIRECTORIO_UPLOAD = "uploadsArchivosImpresion";
 
-	// ????
-	
-	/*@Autowired
-    public FileStorageService(FileStorageProperties fileStorageProperties) {
-        this.fileStorageLocation = Paths.get(fileStorageProperties.getUploadDir())
-                .toAbsolutePath().normalize();
-    }*/
-	
-	//Ver las excepciones
-	
-	public Resource loadFileAsResource(Long idPedido) throws MalformedURLException{
+	public Resource loadFileAsResource(Long idPedido) throws MalformedURLException, Exception{
         	
 			Optional<PedidoImpresion> pedidoImpresion = pedidoImpresionDao.findById(idPedido);
-		
-            Path filePath = this.getPath(pedidoImpresion.get().getNombreArchivoClave());
-            System.out.println(filePath.toString());
-            Resource resource = new UrlResource(filePath.toUri());
-            
-            //Verificar si existe
+			
+			Resource resource = null;
+			
+			if(pedidoImpresion.isPresent()) {
+				Path filePath = this.getPath(pedidoImpresion.get().getNombreArchivoClave());
+	            resource = new UrlResource(filePath.toUri());
+			}else {
+				throw new Exception("Error al obtener el archivo.");
+			}
+			
             return resource;
 
     }
 	
-	// OK
 	public String storeFile(MultipartFile archivo) throws IOException{
 		
 		String nombreArchivoClave = UUID.randomUUID().toString() + "_" +  archivo.getOriginalFilename().replace(" ", "");
-		//String nombreArchivo = archivo.getOriginalFilename().replace(" ", "");
 		
 		// Check if the file's name contains invalid characters
     	/*
@@ -73,7 +65,8 @@ public class FileStorageServiceImpl implements FileStorageService{
 		return nombreArchivoClave;
 	}
 	
-	//OK
+	// Private
+	
 	private Path getPath(String nombreFoto) {
 		return Paths.get(DIRECTORIO_UPLOAD).resolve(nombreFoto).toAbsolutePath();
 	}

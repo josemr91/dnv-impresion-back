@@ -31,7 +31,7 @@ public class ResourceServerConfig extends ResourceServerConfigurerAdapter{
     CorsConfigurationSource corsConfigurationSource() {
         
 		CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(Arrays.asList("http://localhost:4200"));// * -> Para todo los dominios /
+        configuration.setAllowedOrigins(Arrays.asList("http://localhost:4200", "https://impresion-dnv4.web.app"));// * -> Para todo los dominios /
         configuration.setAllowedMethods(Arrays.asList("GET","POST","PATCH","OPTIONS"));
         configuration.setAllowCredentials(true);
         configuration.setAllowedHeaders(Arrays.asList("Content-Type", "Authorization"));

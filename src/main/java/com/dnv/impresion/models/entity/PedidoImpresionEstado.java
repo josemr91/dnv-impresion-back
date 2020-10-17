@@ -31,9 +31,9 @@ public class PedidoImpresionEstado implements Serializable{
 	@Temporal(TemporalType.TIMESTAMP)
 	private Date fechaFin;
 	
-	@ManyToOne(fetch = FetchType.LAZY)
-	@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
-	private Usuario usuario;
+	private String fullNameUsername;
+	
+	private String username;
 	
 	@Enumerated(value = EnumType.STRING)
 	private EstadoPedidoImpresion estadoPedidoImpresion;
@@ -76,14 +76,22 @@ public class PedidoImpresionEstado implements Serializable{
 		this.fechaFin = fechaFin;
 	}
 
-	public Usuario getUsuario() {
-		return usuario;
+	public String getFullNameUsername() {
+		return fullNameUsername;
 	}
 
-	public void setUsuario(Usuario usuario) {
-		this.usuario = usuario;
+	public void setFullNameUsername(String fullNameUsername) {
+		this.fullNameUsername = fullNameUsername;
 	}
-	
+
+	public String getUsername() {
+		return username;
+	}
+
+	public void setUsername(String username) {
+		this.username = username;
+	}
+
 	public EstadoPedidoImpresion getEstadoPedidoImpresion() {
 		return estadoPedidoImpresion;
 	}

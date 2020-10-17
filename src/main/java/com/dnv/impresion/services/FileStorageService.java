@@ -11,7 +11,7 @@ public interface FileStorageService {
 	
 	public String storeFile(MultipartFile archivo) throws IOException;
 
-	public Resource loadFileAsResource(Long idPedido) throws MalformedURLException;
+	public Resource loadFileAsResource(Long idPedido) throws MalformedURLException, Exception;
 	
 	//public Resource loadFileAsResource(String fileName) throws MalformedURLException;
 }
