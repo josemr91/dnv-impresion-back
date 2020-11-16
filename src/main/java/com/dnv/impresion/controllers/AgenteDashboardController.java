@@ -1,27 +1,17 @@
 package com.dnv.impresion.controllers;
 
 import java.io.IOException;
-import java.net.MalformedURLException;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
-import javax.servlet.http.HttpServletRequest;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.Resource;
 import org.springframework.dao.DataAccessException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.http.HttpHeaders;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.annotation.Secured;
-import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -45,7 +35,7 @@ public class AgenteDashboardController {
 	@Autowired
 	FileStorageServiceImpl fileStorageService;
 	
-	private static final Logger logger = LoggerFactory.getLogger(AgenteDashboardController.class);
+	//private static final Logger logger = LoggerFactory.getLogger(AgenteDashboardController.class);
 	
 	@Secured({"ROLE_ADMIN","ROLE_CCYD","ROLE_AGENTE"})
 	@PostMapping("solicitarImpresion")
@@ -55,24 +45,23 @@ public class AgenteDashboardController {
 														  @RequestParam("color") boolean color,
 														  @RequestParam("cantidadCopias") int cantidadCopias,
 														  @RequestParam("disenio") String disenio,
-														  @RequestParam("tamanioPapel") String tamanioPapel){
+														  @RequestParam("tamanioPapel") String tamanioPapel,
+														  @RequestParam("randomFileName") String randomFileName){
 
 		Map<String, Object> response = new HashMap<>();
 				
 		if(!file.isEmpty()){
 			
-			String fileNameClave = null;
-			
-			try {
-				fileNameClave = fileStorageService.storeFile(file);
-				agenteDashboardService.solicitarImpresion(file, fileNameClave, username, cantidadCopias, dobleFaz, color, disenio, tamanioPapel);
+			try {				
+				//fileStorageService.storeFile(file);
+				agenteDashboardService.solicitarImpresion(file, randomFileName, username, cantidadCopias, dobleFaz, color, disenio, tamanioPapel);
 			}catch (IOException e) {
 				e.printStackTrace();
 				response.put("mensaje", "Error al subir el archivo");
 				response.put("error", e.getMessage());
 				return new ResponseEntity<Map<String, Object>>(response, HttpStatus.INTERNAL_SERVER_ERROR);	
 			}
-			response.put("mensaje", "Has enviado correctamente el archivo: " + fileNameClave);
+			response.put("mensaje", "Has enviado correctamente el archivo: " + randomFileName);
 		}
 		
 		return new ResponseEntity<Map<String, Object>>(response, HttpStatus.CREATED);
@@ -102,22 +91,20 @@ public class AgenteDashboardController {
 	@GetMapping("listaPedidosAgente/{username}/{page}")
 	public ResponseEntity<?> pedidosImpresionPorAgente(@PathVariable String username, @PathVariable Integer page){
 		
+		int pedidosPorPagina = 10;
+		
 		Map<String, Object> response = new HashMap<>();
-		List<PedidoImpresionAgenteDTO> pedidoImpresionDtoList = new ArrayList<>();
-		Page<PedidoImpresionAgenteDTO> pageDto = null;
+		Page<PedidoImpresionAgenteDTO> pedidoImpresionAgenteDtoPage = null;
+				
 		try {
-			
-			pageDto = agenteDashboardService.pruebaObtenerPagePedidosImpresionByAgente(username, PageRequest.of(page, 2));
-			
-			pedidoImpresionDtoList = agenteDashboardService.obtenerPedidosImpresionByAgente(username);
+			pedidoImpresionAgenteDtoPage = agenteDashboardService.obtenerPedidosImpresionByAgente(username, PageRequest.of(page, pedidosPorPagina, Sort.by("fecha").descending()));
 		}catch (DataAccessException e) {
 			response.put("mensaje", "Error al obtener los pedidos de impresion.");
 			response.put("error", e.getMessage().concat(": ").concat(e.getCause().getMessage()));
 			return new ResponseEntity<Map<String, Object>>(response, HttpStatus.INTERNAL_SERVER_ERROR);	
 		}
 		
-		//return new ResponseEntity<List<PedidoImpresionAgenteDTO>>(pedidoImpresionDtoList, HttpStatus.CREATED);
-		return new ResponseEntity<Page<PedidoImpresionAgenteDTO>>(pageDto, HttpStatus.CREATED);
+		return new ResponseEntity<Page<PedidoImpresionAgenteDTO>>(pedidoImpresionAgenteDtoPage, HttpStatus.CREATED);
 	}
 
 
@@ -141,38 +128,4 @@ public class AgenteDashboardController {
 		return new ResponseEntity<Map<String, Object>>(response, HttpStatus.OK);
 	}
 	
-	
-	/*
-	// Prueba
-	@GetMapping("/downloadFile/{fileName:.+}")
-    public ResponseEntity<Resource> downloadFile(@PathVariable String fileName, HttpServletRequest request) {
-        // Load file as Resource
-		
-        Resource resource = null;
-		try {
-			resource = fileStorageService.loadFileAsResource(fileName);
-		} catch (MalformedURLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-
-        // Try to determine file's content type
-        String contentType = null;
-        try {
-            contentType = request.getServletContext().getMimeType(resource.getFile().getAbsolutePath());
-        } catch (IOException ex) {
-            logger.info("Could not determine file type.");
-        }
-
-        // Fallback to the default content type if type could not be determined
-        if(contentType == null) {
-            contentType = "application/octet-stream";
-        }
-        
-        return ResponseEntity.ok()
-                .contentType(MediaType.parseMediaType(contentType))
-                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + resource.getFilename() + "\"")
-                .body(resource);
-    }*/
-
 }

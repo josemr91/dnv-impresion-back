@@ -6,8 +6,13 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import com.dnv.impresion.dto.pedidosImpresion.PedidoImpresionAgenteDTO;
 import com.dnv.impresion.dto.pedidosImpresion.PedidoImpresionCentroDTO;
 import com.dnv.impresion.entity.dao.PedidoImpresionDao;
 import com.dnv.impresion.entity.dao.PedidoImpresionEstadoDao;
@@ -30,96 +35,35 @@ public class CentroCopiadoDashboardServiceImpl implements CentroCopiadoDashboard
 	
 	@Autowired
 	UsuarioDao usuarioDao;
-
-	public List<PedidoImpresionCentroDTO> obtenerPedidosImpresion(String tipoEstado){
-
-		List<PedidoImpresion> pedidoImpresionList = pedidoImpresionDao.findAll();
+	
+	public Page<PedidoImpresionCentroDTO> obtenerPedidosImpresion(String tipoEstado, Pageable pageable){
 		
-		List<PedidoImpresion> pedidoImpresionAMostrarList = new ArrayList<>();
-		
+		List<PedidoImpresion> pagePedidoImpresion = pedidoImpresionDao.obtenerPedidosIntermedios();
+				
 		List<PedidoImpresionCentroDTO> pedidoImpresionCentroDtoList = new ArrayList<>();
 		
-		switch(tipoEstado) {
-			case "Intermedio":
-				
-				for(PedidoImpresion o: pedidoImpresionList){
-					for(PedidoImpresionEstado o2: o.getPedidoImpresionEstadoList()) {
-						if(o2.getFechaFin() == null) {
-							
-							if(o2.getEstadoPedidoImpresion().equals(com.dnv.impresion.models.entity.PedidoImpresionEstado.EstadoPedidoImpresion.SIN_ASIGNAR) ||
-								o2.getEstadoPedidoImpresion().equals(com.dnv.impresion.models.entity.PedidoImpresionEstado.EstadoPedidoImpresion.PARA_IMPRIMIR ) ||
-								o2.getEstadoPedidoImpresion().equals(com.dnv.impresion.models.entity.PedidoImpresionEstado.EstadoPedidoImpresion.PARA_RETIRAR)) {
-								
-								pedidoImpresionAMostrarList.add(o);
-								break;
-							}
-						}
-					}
-				}		
-				break;
-				
-			case "Finalizado":
-				
-				for(PedidoImpresion o: pedidoImpresionList){
-					for(PedidoImpresionEstado o2: o.getPedidoImpresionEstadoList()) {
-						if(o2.getFechaFin() == null) {
-							
-							if(o2.getEstadoPedidoImpresion().equals(com.dnv.impresion.models.entity.PedidoImpresionEstado.EstadoPedidoImpresion.CANCELADO)||
-								o2.getEstadoPedidoImpresion().equals(com.dnv.impresion.models.entity.PedidoImpresionEstado.EstadoPedidoImpresion.RECHAZADO ) ||
-								o2.getEstadoPedidoImpresion().equals(com.dnv.impresion.models.entity.PedidoImpresionEstado.EstadoPedidoImpresion.RETIRADO)) {
-								
-								pedidoImpresionAMostrarList.add(o);
-								break;
-							}
-						}
-					}
-				}		
-				break;
-				
-		}
 		
-		for(PedidoImpresion o : pedidoImpresionAMostrarList) {
+		// Convertir a DTO
+		
+		for(PedidoImpresion o : pagePedidoImpresion) {
 						
-			String fullNameAgente = o.getUsuario().getApellido() + ", " + o.getUsuario().getNombre();
-			
-			PedidoImpresionEstado pedidoImpresionEstado = null;
-			
-			for(PedidoImpresionEstado o2: o.getPedidoImpresionEstadoList()) {
-				if(o2.getFechaFin() == null) {
-					pedidoImpresionEstado = o2;
-					break;
-				}
-			}
-			
-			PedidoImpresionCentroDTO pedidoImpresionCentroDTO 
-					= new PedidoImpresionCentroDTO(
-							o.getId(),
-							o.getUsuario().getPrioridad(),
-							o.getFecha(),
-							fullNameAgente,
-							o.getUsuario().getCuit(),
-							o.getNombreArchivoImpresion(),
-							pedidoImpresionEstado.getEstadoPedidoImpresion().toString(),
-							o.getCantidadCopias(),
-							o.getCantidadHojas(),
-							o.isDobleFax(),
-							o.isColor(),
-							o.getTamanioPapel(),
-							o.getDisenio());
-			
-			pedidoImpresionCentroDtoList.add(pedidoImpresionCentroDTO);
-		
+			pedidoImpresionCentroDtoList.add(this.toPedidoImpresionCentroDTO(o));	
 		}
 		
-		return pedidoImpresionCentroDtoList;
+		// Convertir List en Page
+		 
+		int start = (int) pageable.getOffset();
+		int end = (start + pageable.getPageSize()) > pedidoImpresionCentroDtoList.size() ? pedidoImpresionCentroDtoList.size() : (start + pageable.getPageSize());
 		
+		return new PageImpl<PedidoImpresionCentroDTO>(pedidoImpresionCentroDtoList.subList(start, end), pageable, pedidoImpresionCentroDtoList.size());
+
 	}
+	
+	
 	
 	// Mejorar Excepciones
 	public void asignarPedidoImpresion(String username, Long idPedidoImpresion) throws Exception {
-		
-		System.out.println(username);
-		
+				
 		Usuario usuarioEncargado = usuarioDao.findByUsername(username);
 
 		Optional<PedidoImpresion> pedidoImpresion = pedidoImpresionDao.findById(idPedidoImpresion);
@@ -133,7 +77,8 @@ public class CentroCopiadoDashboardServiceImpl implements CentroCopiadoDashboard
 					esCentro = true;
 					
 					PedidoImpresionEstado pedidoImpresionEstadoNuevo = new PedidoImpresionEstado();
-					pedidoImpresionEstadoNuevo.setUsuario(usuarioEncargado);
+					pedidoImpresionEstadoNuevo.setFullNameUsername(usuarioEncargado.getApellido() + ", " + usuarioEncargado.getNombre());
+					pedidoImpresionEstadoNuevo.setUsername(username);
 					pedidoImpresionEstadoNuevo.setEstadoPedidoImpresion(EstadoPedidoImpresion.PARA_IMPRIMIR);
 					
 					PedidoImpresionEstado pedidoImpresionEstado = null;
@@ -144,6 +89,8 @@ public class CentroCopiadoDashboardServiceImpl implements CentroCopiadoDashboard
 							break;
 						}
 					}
+					
+					pedidoImpresion.get().setFecha(new Date());
 					
 					pedidoImpresionEstado.setFechaFin(new Date());
 					pedidoImpresion.get().addPedidoImpresionEstado(pedidoImpresionEstadoNuevo);
@@ -167,7 +114,6 @@ public class CentroCopiadoDashboardServiceImpl implements CentroCopiadoDashboard
 
 	}
 
-	//Rechazar Pedido
 	public void rechazarPedidoImpresion(String username, Long idPedidoImpresion) {
 		
 		Usuario usuarioEncargado = usuarioDao.findByUsername(username);
@@ -177,7 +123,8 @@ public class CentroCopiadoDashboardServiceImpl implements CentroCopiadoDashboard
 		if(pedidoImpresion.isPresent()) {
 			
 			PedidoImpresionEstado pedidoImpresionEstadoNuevo = new PedidoImpresionEstado();
-			pedidoImpresionEstadoNuevo.setUsuario(usuarioEncargado);
+			pedidoImpresionEstadoNuevo.setFullNameUsername(usuarioEncargado.getApellido() + ", " + usuarioEncargado.getNombre());
+			pedidoImpresionEstadoNuevo.setUsername(username);
 			pedidoImpresionEstadoNuevo.setEstadoPedidoImpresion(EstadoPedidoImpresion.RECHAZADO);
 			
 			PedidoImpresionEstado pedidoImpresionEstado = null;
@@ -189,6 +136,8 @@ public class CentroCopiadoDashboardServiceImpl implements CentroCopiadoDashboard
 				}
 			}
 			
+			pedidoImpresion.get().setFecha(new Date());
+			
 			pedidoImpresionEstado.setFechaFin(new Date());
 			
 			pedidoImpresion.get().addPedidoImpresionEstado(pedidoImpresionEstadoNuevo);
@@ -203,7 +152,7 @@ public class CentroCopiadoDashboardServiceImpl implements CentroCopiadoDashboard
 		}
 	}
 	
-	//ConfirmarPedido
+
 	public void confirmarPedido(String username, Long idPedidoImpresion) {
 		
 		Usuario usuarioEncargado = usuarioDao.findByUsername(username);
@@ -213,7 +162,8 @@ public class CentroCopiadoDashboardServiceImpl implements CentroCopiadoDashboard
 		if(pedidoImpresion.isPresent()) {
 			
 			PedidoImpresionEstado pedidoImpresionEstadoNuevo = new PedidoImpresionEstado();
-			pedidoImpresionEstadoNuevo.setUsuario(usuarioEncargado);
+			pedidoImpresionEstadoNuevo.setFullNameUsername(usuarioEncargado.getApellido() + ", " + usuarioEncargado.getNombre());
+			pedidoImpresionEstadoNuevo.setUsername(username);
 			pedidoImpresionEstadoNuevo.setEstadoPedidoImpresion(EstadoPedidoImpresion.PARA_RETIRAR);
 			
 			PedidoImpresionEstado pedidoImpresionEstado = null;
@@ -225,6 +175,8 @@ public class CentroCopiadoDashboardServiceImpl implements CentroCopiadoDashboard
 				}
 			}
 			
+			pedidoImpresion.get().setFecha(new Date());
+			
 			pedidoImpresionEstado.setFechaFin(new Date());
 			
 			pedidoImpresion.get().addPedidoImpresionEstado(pedidoImpresionEstadoNuevo);
@@ -240,7 +192,6 @@ public class CentroCopiadoDashboardServiceImpl implements CentroCopiadoDashboard
 		
 	}
 	
-	//EntregarPedido
 	public void entregarPedidoImpresion(String username, Long idPedidoImpresion) {
 		
 		Usuario usuarioEncargado = usuarioDao.findByUsername(username);
@@ -250,7 +201,8 @@ public class CentroCopiadoDashboardServiceImpl implements CentroCopiadoDashboard
 		if(pedidoImpresion.isPresent()) {
 		
 			PedidoImpresionEstado pedidoImpresionEstadoNuevo = new PedidoImpresionEstado();
-			pedidoImpresionEstadoNuevo.setUsuario(usuarioEncargado);
+			pedidoImpresionEstadoNuevo.setFullNameUsername(usuarioEncargado.getApellido() + ", " + usuarioEncargado.getNombre());
+			pedidoImpresionEstadoNuevo.setUsername(username);
 			pedidoImpresionEstadoNuevo.setEstadoPedidoImpresion(EstadoPedidoImpresion.RETIRADO);
 			
 			PedidoImpresionEstado pedidoImpresionEstado = null;
@@ -262,6 +214,8 @@ public class CentroCopiadoDashboardServiceImpl implements CentroCopiadoDashboard
 				}
 			}
 			
+			pedidoImpresion.get().setFecha(new Date());
+
 			pedidoImpresionEstado.setFechaFin(new Date());
 			
 			pedidoImpresion.get().addPedidoImpresionEstado(pedidoImpresionEstadoNuevo);
@@ -276,5 +230,39 @@ public class CentroCopiadoDashboardServiceImpl implements CentroCopiadoDashboard
 		}
 		
 	}
+	
+	private PedidoImpresionCentroDTO toPedidoImpresionCentroDTO(PedidoImpresion o){
+		
+		String fullNameAgente = o.getUsuario().getApellido() + ", " + o.getUsuario().getNombre();
+		
+		PedidoImpresionEstado pedidoImpresionEstado = null;
+		
+		for(PedidoImpresionEstado o2: o.getPedidoImpresionEstadoList()) {
+			if(o2.getFechaFin() == null) {
+				pedidoImpresionEstado = o2;
+				break;
+			}
+		}
+		
+		PedidoImpresionCentroDTO pedidoImpresionCentroDTO 
+				= new PedidoImpresionCentroDTO(
+						o.getId(),
+						o.getUsuario().getPrioridad(),
+						o.getFecha(),
+						fullNameAgente,
+						o.getUsuario().getCuit(),
+						o.getNombreArchivoImpresion(),
+						o.getNombreArchivoClave(),
+						pedidoImpresionEstado.getEstadoPedidoImpresion().toString(),
+						o.getCantidadCopias(),
+						o.getCantidadHojas(),
+						o.isDobleFax(),
+						o.isColor(),
+						o.getTamanioPapel(),
+						o.getDisenio());
+		
+		return pedidoImpresionCentroDTO;
+	}
+	
 
 }

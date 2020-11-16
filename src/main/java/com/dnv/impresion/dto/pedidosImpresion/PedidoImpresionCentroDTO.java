@@ -10,6 +10,7 @@ public class PedidoImpresionCentroDTO {
 	private String fullNameAgente;
 	private String cuitAgente;
 	private String nombreArchivo;
+	private String nombreArchivoClave;
 	private String estadoPedidoImpresion;
 	private int cantidadCopias;
 	private int cantidadHojas;
@@ -19,9 +20,8 @@ public class PedidoImpresionCentroDTO {
 	private String disenio;
 	
 	public PedidoImpresionCentroDTO(Long idPedidoImpresion, String prioridad, Date fechaPedidoImpresion,
-			String fullNameAgente, String cuitAgente, String nombreArchivo, String estadoPedidoImpresion,
-			int cantidadCopias, int cantidadHojas, boolean dobleFaz, boolean color, String tamanioPapel,
-			String disenio) {
+			String fullNameAgente, String cuitAgente, String nombreArchivo, String nombreArchivoClave, String estadoPedidoImpresion,
+			int cantidadCopias, int cantidadHojas, boolean dobleFaz, boolean color, String tamanioPapel, String disenio) {
 
 		this.idPedidoImpresion = idPedidoImpresion;
 		this.prioridad = prioridad;
@@ -29,6 +29,7 @@ public class PedidoImpresionCentroDTO {
 		this.fullNameAgente = fullNameAgente;
 		this.cuitAgente = cuitAgente;
 		this.nombreArchivo = nombreArchivo;
+		this.nombreArchivoClave = nombreArchivoClave;
 		this.estadoPedidoImpresion = estadoPedidoImpresion;
 		this.cantidadCopias = cantidadCopias;
 		this.cantidadHojas = cantidadHojas;
@@ -84,6 +85,14 @@ public class PedidoImpresionCentroDTO {
 
 	public void setNombreArchivo(String nombreArchivo) {
 		this.nombreArchivo = nombreArchivo;
+	}
+
+	public String getNombreArchivoClave() {
+		return nombreArchivoClave;
+	}
+
+	public void setNombreArchivoClave(String nombreArchivoClave) {
+		this.nombreArchivoClave = nombreArchivoClave;
 	}
 
 	public String getEstadoPedidoImpresion() {

@@ -46,9 +46,10 @@ public class FileStorageServiceImpl implements FileStorageService{
 
     }
 	
-	public String storeFile(MultipartFile archivo) throws IOException{
+	public void storeFile(MultipartFile archivo, String randomFileName) throws IOException{
 		
-		String nombreArchivoClave = UUID.randomUUID().toString() + "_" +  archivo.getOriginalFilename().replace(" ", "");
+		// Lo manejo en el Front
+		//String nombreArchivoClave = UUID.randomUUID().toString() + "_" +  archivo.getOriginalFilename().replace(" ", "");
 		
 		// Check if the file's name contains invalid characters
     	/*
@@ -57,12 +58,10 @@ public class FileStorageServiceImpl implements FileStorageService{
         }
 		*/
 		
-		Path rutaArchivo = getPath(nombreArchivoClave);
-		log.info(rutaArchivo.toString());
+		Path rutaArchivo = getPath(randomFileName);
 		
 		Files.copy(archivo.getInputStream(), rutaArchivo);		
 		
-		return nombreArchivoClave;
 	}
 	
 	// Private

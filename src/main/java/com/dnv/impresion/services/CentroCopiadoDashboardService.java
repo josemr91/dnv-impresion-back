@@ -1,12 +1,13 @@
 package com.dnv.impresion.services;
 
-import java.util.List;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import com.dnv.impresion.dto.pedidosImpresion.PedidoImpresionCentroDTO;
 
 public interface CentroCopiadoDashboardService {
 	
-	public List<PedidoImpresionCentroDTO> obtenerPedidosImpresion(String tipoEstado);
+	public Page<PedidoImpresionCentroDTO> obtenerPedidosImpresion(String tipoEstado, Pageable pageable);
 	
 	public void asignarPedidoImpresion(String username, Long idPedidoImpresion) throws Exception;
 	
@@ -15,5 +16,6 @@ public interface CentroCopiadoDashboardService {
 	public void confirmarPedido(String username, Long idPedidoImpresion);
 	
 	public void entregarPedidoImpresion(String username, Long idPedidoImpresion);
+	
 
 }

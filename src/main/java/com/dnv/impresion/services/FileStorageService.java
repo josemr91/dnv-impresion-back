@@ -9,7 +9,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 public interface FileStorageService {
 	
-	public String storeFile(MultipartFile archivo) throws IOException;
+	public void storeFile(MultipartFile archivo, String randomFileName) throws IOException;
 
 	public Resource loadFileAsResource(Long idPedido) throws MalformedURLException, Exception;
 	
